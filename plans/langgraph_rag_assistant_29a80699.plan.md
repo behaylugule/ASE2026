@@ -4,19 +4,19 @@ overview: "Greenfield implementation of a project-scoped academic RAG assistant:
 todos:
   - id: docker-django-base
     content: Add docker-compose (Postgres pgvector, Redis), Django project, JWT auth, CORS, health check
-    status: pending
+    status: completed
   - id: models-migrations
     content: Implement Project, Document, DocumentChunk (pgvector), ChatMessage models and migrations
-    status: pending
+    status: completed
   - id: ingestion-celery
     content: "Build upload API + Celery task: extract PDF/DOCX, chunk, embed, store with metadata"
-    status: pending
+    status: completed
   - id: langgraph-chat
     content: Implement LangGraph (retrieve, rerank top-3, aggregate, generate, cite, save memory) + chat endpoint
-    status: pending
+    status: completed
   - id: nextjs-ui
     content: "Next.js: auth, projects, document upload/status, chat with citations"
-    status: pending
+    status: completed
 isProject: false
 ---
 
@@ -34,7 +34,7 @@ The workspace [ASE2026](education/ASE2026/README.md) is empty aside from a stub 
 | Vector storage   | **PostgreSQL + pgvector**                                                        | One Docker service for relational + vectors; `WHERE project_id = ?` maps cleanly; horizontal scaling later via read replicas / dedicated vector tier if needed. |
 | Async ingestion  | **Celery + Redis**                                                               | PDF/DOCX parsing and embedding are slow; API returns quickly with `document.status` (`pending` → `processing` → `ready` / `failed`).                            |
 | Auth             | **Django + JWT** (e.g. `djangorestframework-simplejwt`)                          | Fits “user logs in”; Next.js stores access token; API is stateless.                                                                                             |
-| LLM / embeddings | **Env-configured** (OpenAI or compatible API first)                              | Simplest path to quality; optional second path: local `sentence-transformers` + Ollama documented as variants.                                                  |
+| LLM / embeddings | **Env-configured** (OpenAI )                                                     | Simplest path to quality; optional second path: local `sentence-transformers` + Ollama documented as variants.                                                  |
 | Re-ranking       | **Cross-encoder** (e.g. `sentence-transformers` small model) or **API reranker** | Spec calls re-rank “critical”; start with a local cross-encoder to avoid extra paid dependency, swap to Cohere/Voyage if you prefer.                            |
 
 
@@ -52,6 +52,9 @@ flowchart TB
   subgraph workers [Celery Workers]
     Ingest[Ingestion Task]
   end
+  subgraph models [Models]
+    OpenAI[(OpenAI API)]
+  end
   subgraph data [Data]
     PG[(PostgreSQL plus pgvector)]
     Redis[(Redis)]
@@ -65,6 +68,7 @@ flowchart TB
   UI --> Chat
   Chat --> LG
   LG --> PG
+  LG --> OpenAI
   Docs --> Ingest
   Ingest --> PG
   Ingest --> Redis
@@ -76,7 +80,7 @@ flowchart TB
 ## 1. Docker and PostgreSQL
 
 - **Compose services**: `db` (image `pgvector/pgvector:pg16` or official Postgres + init script enabling `pgvector`), `redis`, `backend` (Django + Gunicorn/Uvicorn worker if using ASGI), `worker` (Celery), optional `frontend` for prod or document `npm run dev` on host.
-- **Env**: `DATABASE_URL`, `REDIS_URL`, `SECRET_KEY`, `LLM_*`, `EMBEDDING_*`, `CORS_ALLOWED_ORIGINS` for Next.js.
+- **Env**: `DATABASE_URL`, `REDIS_URL`, `SECRET_KEY`, `LLM_`*, `EMBEDDING_*`, `CORS_ALLOWED_ORIGINS` for Next.js.
 - **Django**: `django-environ` or similar; migrations create extensions (`CREATE EXTENSION vector`) via `RunSQL` in initial migration or entrypoint script.
 
 ## 2. Django backend layout
@@ -85,8 +89,8 @@ Suggested apps (single repo `backend/`):
 
 - `**users`** (optional thin wrapper): registration/login if not using django-allauth; JWT obtain/refresh endpoints.
 - `**projects`**: `Project` (`id`, `owner` FK → User, `name`, `created_at`). All retrieval scoped by `project_id` + ownership checks.
-- `**documents**`: `Document` (`project`, `original_filename`, `stored_path` or S3 key later, `mime_type`, `status`, `error_message`, `page_count` optional).
-- `**rag` or `knowledge**`: `DocumentChunk` with `document` FK, `chunk_index`, `content`, `token_count`, `page_number`, `metadata` JSONField; **pgvector column** `embedding vector(N)` where `N` matches embedding model dimension. Index: IVFFlat or HNSW on `(project_id)` + vector (Django-pgvector / raw SQL as needed).
+- `**documents`**: `Document` (`project`, `original_filename`, `stored_path` or S3 key later, `mime_type`, `status`, `error_message`, `page_count` optional).
+- `**rag` or `knowledge`**: `DocumentChunk` with `document` FK, `chunk_index`, `content`, `token_count`, `page_number`, `metadata` JSONField; **pgvector column** `embedding vector(N)` where `N` matches embedding model dimension. Index: IVFFlat or HNSW on `(project_id)` + vector (Django-pgvector / raw SQL as needed).
 - `**chat`**: `Conversation` (optional: one per project session) or flat `ChatMessage` with `project`, `role` (`user`/`assistant`), `content`, `citations` JSONField, `created_at` for “project-level memory.”
 
 **API surface (REST, JSON):**
