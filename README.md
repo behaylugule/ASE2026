@@ -1,4 +1,4 @@
-# ASE2026 — LangGraph RAG Research Assistant
+# ASE2026 — AI-Powered Academic Research Assistant
 
 Django REST API, Celery workers, PostgreSQL + pgvector, and a Next.js UI for project-scoped document chat with retrieval, cross-encoder re-ranking, and citations.
 
@@ -70,6 +70,3 @@ Key variables in `.env`:
 - **Ingestion**: Celery task chunks PDF/DOCX, embeds with sentence-transformers, stores rows in `DocumentChunk` with pgvector.
 - **Query**: LangGraph nodes — load memory → embed query → project-filtered ANN-style cosine retrieval → cross-encoder re-rank → multi-document context → OpenAI chat → citation list → persist messages.
 
-## License
-
-Use and modify for your course or project as needed.

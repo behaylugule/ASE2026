@@ -10,3 +10,4 @@ frontend/.next/
 frontend/out/
 *.sqlite3
 .DS_Store
+./plans
