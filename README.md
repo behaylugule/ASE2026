@@ -49,11 +49,6 @@ Django REST API, Celery workers, PostgreSQL + pgvector, and a Next.js UI for pro
 | POST | `/api/auth/token/refresh/` | Refresh token |
 | GET/POST | `/api/projects/` | List / create projects |
 | GET/PATCH/DELETE | `/api/projects/{id}/` | Project detail |
-| GET/POST | `/api/projects/{id}/documents/` | List / upload PDF or DOCX |
-| GET/DELETE | `/api/projects/{id}/documents/{doc_id}/` | Document detail / delete |
-| POST | `/api/projects/{id}/chat/` | `{ "message": "..." }` — LangGraph RAG pipeline |
-| GET | `/api/projects/{id}/chat/messages/` | Chat history |
-
 
 
 ## API overview(Onprogress)
