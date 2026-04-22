@@ -1,5 +1,38 @@
 # ASE2026 — AI-Powered Academic Research Assistant
 
+### Title
+
+AI-Powered Academic Research Assistant with Scalable System Architecture (RAG-Based Platform)
+
+### 1. Introduction
+
+The rapid growth of academic publications has made it increasingly difficult for researchers and students to efficiently locate, analyze, and synthesize relevant information. Traditional research methods require extensive manual effort to search for papers, evaluate their relevance, and extract key insights. While recent advances in artificial intelligence have introduced tools to assist with these tasks, many of these systems lack reliability, often generating responses without verifiable sources or producing inaccurate information.
+
+### 2. Problem Statement
+
+The primary problem addressed in this project is the inefficiency and lack of trust in current academic research workflows. Researchers face information overload due to the vast number of available academic papers. The process of reviewing and summarizing literature is time-consuming and labor-intensive. Existing AI-based tools often produce unreliable or non-cited responses, limiting their usefulness in academic contexts.
+
+### 3. Proposed Solution
+
+This project proposes an AI-powered academic research assistant based on a Retrieval-Augmented Generation (RAG) architecture. The system integrates document retrieval with generative AI to provide accurate, context-aware, and source-grounded responses. It includes retrieval of relevant documents, grounded answer generation, automatic citations, and a scalable backend.
+
+### 4. Objectives
+
+The objectives are to reduce research time, improve accuracy of AI-generated responses, ensure scalability, and enhance user trust through verifiable citations.
+
+### 5. Methodology
+
+The system will use a RAG pipeline including data ingestion, embedding and indexing, retrieval, generation, and a user interface. A scalable architecture ensures performance and reliability.
+
+### 6. Expected Outcomes
+
+The system is expected to reduce research time, improve trust in AI outputs, enhance academic workflows, and demonstrate the effectiveness of RAG in research applications.
+
+### 7. Conclusion
+
+This project combines retrieval and generative AI to address challenges in academic research, ensuring outputs are grounded in real sources and improving both efficiency and reliability.
+
+
 Django REST API, Celery workers, PostgreSQL + pgvector, and a Next.js UI for project-scoped document chat with retrieval, cross-encoder re-ranking, and citations.
 
 ## Prerequisites
@@ -75,4 +108,3 @@ Key variables in `.env`:
 
 - **Ingestion**: Celery task chunks PDF/DOCX, embeds with sentence-transformers, stores rows in `DocumentChunk` with pgvector.
 - **Query**: LangGraph nodes — load memory → embed query → project-filtered ANN-style cosine retrieval → cross-encoder re-rank → multi-document context → OpenAI chat → citation list → persist messages.
-
