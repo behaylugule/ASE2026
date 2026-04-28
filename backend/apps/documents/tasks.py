@@ -40,7 +40,7 @@ def _chunk_pages(
     splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        model_name="cl100k_base",
+        encoding_name="cl100k_base",
     )
     out: list[dict] = []
     chunk_index = 0

@@ -1,3 +1,31 @@
+
+## Task list (status)
+
+### Completed
+
+- [x] Django backend (DRF) with JWT auth (`/api/auth/*`)
+- [x] Project CRUD (`/api/projects/*`) with per-user project isolation
+- [x] Document upload endpoints (`/api/projects/{id}/documents/*`)
+- [x] Async ingestion (Celery + Redis): extract PDF/DOCX → chunk (300–500 tokens) → embed → store chunks + metadata
+- [x] PostgreSQL + pgvector storage for chunks/embeddings + relational entities
+- [x] Docker Compose stack: `db`, `redis`, `backend`, `worker`, `frontend`
+- [x] CPU-only PyTorch in Docker (no NVIDIA/CUDA required)
+- [x] Upload fixes:
+  - [x] Increased `Document.file` max length (avoids `SuspiciousFileOperation`)
+  - [x] Fixed tokenizer selection for chunking (`encoding_name="cl100k_base"`)
+
+### Remaining / Optional improvements
+- [ ] LangGraph RAG pipeline: load memory → embed query → project-scoped retrieval → re-rank → multi-doc aggregation → generate → citations → save memory
+- [ ] Chat API + history (`/api/projects/{id}/chat/*`)
+- [ ] Implement best UI
+- [ ] Stream chat responses (SSE/WebSocket) for token-by-token UX
+- [ ] Better citation precision (character offsets, snippet highlighting, stronger page mapping)
+- [ ] Access token refresh handling in frontend (auto refresh on 401)
+- [ ] Background job monitoring UI (ingestion progress + retry controls)
+- [ ] Vector index tuning (HNSW/IVFFlat indexing, performance tuning for large corpora)
+
+
+
 # ASE2026 — AI-Powered Academic Research Assistant
 
 ### Title
@@ -38,7 +66,7 @@ Django REST API, Celery workers, PostgreSQL + pgvector, and a Next.js UI for pro
 ## Prerequisites
 
 - Docker and Docker Compose
-- Node.js 20+ (for local Next.js dev)
+- Node.js 20+ (optional, only if running Next.js outside Docker)
 
 ## Quick start
 
@@ -62,8 +90,9 @@ Django REST API, Celery workers, PostgreSQL + pgvector, and a Next.js UI for pro
    - API: `http://localhost:8000` (Postgres and Redis are **not** published to the host by default; only the API port is mapped.)
    - Health: `http://localhost:8000/health/`
    - Admin: `http://localhost:8000/admin/` (create a superuser with `docker compose exec backend python manage.py createsuperuser`)
+   - Frontend: `http://localhost:3000`
 
-4. Frontend (separate terminal):
+4. Optional: run the frontend locally instead of Docker:
 
    ```bash
    cd frontend
@@ -71,7 +100,7 @@ Django REST API, Celery workers, PostgreSQL + pgvector, and a Next.js UI for pro
    npm run dev
    ```
 
-   Open `http://localhost:3000`.
+   Open `http://localhost:3000` (ensure `NEXT_PUBLIC_API_URL` points at your backend).
 
 ## API overview(Completed)
 
@@ -108,3 +137,4 @@ Key variables in `.env`:
 
 - **Ingestion**: Celery task chunks PDF/DOCX, embeds with sentence-transformers, stores rows in `DocumentChunk` with pgvector.
 - **Query**: LangGraph nodes — load memory → embed query → project-filtered ANN-style cosine retrieval → cross-encoder re-rank → multi-document context → OpenAI chat → citation list → persist messages.
+

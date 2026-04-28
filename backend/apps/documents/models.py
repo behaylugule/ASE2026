@@ -24,7 +24,7 @@ class Document(models.Model):
         related_name="documents",
     )
     original_filename = models.CharField(max_length=512)
-    file = models.FileField(upload_to=document_upload_path)
+    file = models.FileField(upload_to=document_upload_path, max_length=500)
     mime_type = models.CharField(max_length=128, blank=True)
     status = models.CharField(
         max_length=32,

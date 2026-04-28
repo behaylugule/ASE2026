@@ -32,6 +32,7 @@ export default function ProjectDetailPage() {
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const refreshDocs = useCallback(async () => {
     try {
@@ -65,6 +66,10 @@ export default function ProjectDetailPage() {
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [id, router, refreshDocs, refreshMessages]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -102,71 +107,103 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <p>
-        <Link href="/projects">← Projects</Link>
-      </p>
-      <h1>Project</h1>
-      <p className="muted">ID: {id}</p>
+    <main className="appShell">
+      <aside className="sidebar">
+        <div className="row" style={{ justifyContent: "space-between", marginBottom: "0.75rem" }}>
+          <Link href="/projects">← Projects</Link>
+          <span className="pill">Project</span>
+        </div>
+        <div className="muted" style={{ fontSize: "0.8rem", marginBottom: "1rem" }}>
+          {id}
+        </div>
 
-      <section className="card stack" style={{ marginTop: "1.5rem" }}>
-        <h2 style={{ margin: 0 }}>Documents</h2>
-        <div className="row">
-          <label className="btn secondary" style={{ display: "inline-block" }}>
+        <div className="sidebarTitle">Documents</div>
+        <div className="row" style={{ marginBottom: "0.75rem" }}>
+          <label className="btn secondary" style={{ display: "inline-block", width: "100%", textAlign: "center" }}>
             {uploading ? "Uploading…" : "Upload PDF / DOCX"}
             <input type="file" accept=".pdf,.docx" hidden onChange={onUpload} disabled={uploading} />
           </label>
         </div>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0 }} className="stack">
-          {docs.map((d) => (
-            <li key={d.id} className="muted">
-              <strong style={{ color: "var(--text)" }}>{d.original_filename}</strong> — {d.status}
-              {d.error_message ? ` — ${d.error_message}` : ""}
-            </li>
-          ))}
-        </ul>
-        {docs.length === 0 ? <p className="muted">No documents yet.</p> : null}
-      </section>
 
-      <section className="card stack" style={{ marginTop: "1.5rem" }}>
-        <h2 style={{ margin: 0 }}>Chat</h2>
-        <div
-          className="stack"
-          style={{
-            maxHeight: 420,
-            overflowY: "auto",
-            gap: "0.6rem",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        {docs.length === 0 ? (
+          <div className="muted">No documents yet.</div>
+        ) : (
+          <div>
+            {docs.map((d) => (
+              <div key={d.id} className="sidebarItem" title={d.error_message || ""}>
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {d.original_filename}
+                  </strong>
+                  <div className="sidebarMeta">
+                    {d.status}
+                    {d.error_message ? ` • ${d.error_message}` : ""}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </aside>
+
+      <section className="chatMain">
+        <header className="chatHeader">
+          <h1 className="chatTitle">Academic Research Assistant</h1>
+          <div className="muted" style={{ fontSize: "0.85rem" }}>
+            Ask questions across your uploaded documents (answers include citations).
+          </div>
+        </header>
+
+        <div className="chatBody">
+          {messages.length === 0 ? (
+            <div className="muted" style={{ maxWidth: 900, margin: "2rem auto 0" }}>
+              Upload documents on the left, then ask your first question here.
+            </div>
+          ) : null}
+
           {messages.map((m) => (
-            <div key={m.id} className={m.role === "user" ? "msg-user" : "msg-assistant"}>
-              <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginBottom: 4 }}>{m.role}</div>
-              {m.content}
-              {m.citations && m.citations.length > 0 ? (
-                <ul className="citations">
-                  {m.citations.map((c, i) => (
-                    <li key={i}>{c.label || `${c.document_name} p.${c.page_number}`}</li>
-                  ))}
-                </ul>
-              ) : null}
+            <div key={m.id} className={`msg ${m.role === "user" ? "msgUser" : "msgAssistant"}`}>
+              <div className="msgInner">
+                <div className="msgRole">{m.role}</div>
+                {m.content}
+                {m.citations && m.citations.length > 0 ? (
+                  <details style={{ marginTop: "0.65rem" }}>
+                    <summary className="muted" style={{ cursor: "pointer" }}>
+                      Citations ({m.citations.length})
+                    </summary>
+                    <ul className="citations">
+                      {m.citations.map((c, i) => (
+                        <li key={i}>{c.label || `${c.document_name} p.${c.page_number ?? "n/a"}`}</li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+              </div>
             </div>
           ))}
+          <div ref={chatEndRef} />
         </div>
-        <form className="stack" onSubmit={sendChat}>
-          {chatError ? <p style={{ color: "#f87171" }}>{chatError}</p> : null}
-          <textarea
-            className="field"
-            rows={3}
-            placeholder="Ask a question about your documents…"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-          />
-          <button className="btn" type="submit" disabled={sending}>
-            {sending ? "Sending…" : "Send"}
-          </button>
-        </form>
+
+        <div className="composerWrap">
+          <form className="composer" onSubmit={sendChat}>
+            <div style={{ flex: 1 }}>
+              {chatError ? <div style={{ color: "#f87171", marginBottom: 8 }}>{chatError}</div> : null}
+              <textarea
+                className="field"
+                rows={2}
+                placeholder="Message the research assistant…"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+              />
+              <div className="muted" style={{ fontSize: "0.75rem", marginTop: 6 }}>
+                Tip: ask “Compare findings across the documents” or “Summarize contributions with citations”.
+              </div>
+            </div>
+            <button className="btn" type="submit" disabled={sending || !chatInput.trim()}>
+              {sending ? "Sending…" : "Send"}
+            </button>
+          </form>
+        </div>
       </section>
     </main>
   );
