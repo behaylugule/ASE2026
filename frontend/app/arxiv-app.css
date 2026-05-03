@@ -1,0 +1,102 @@
+/* Full-app shell: layout overrides on top of arxiv-theme.css */
+
+body.app-arxiv {
+  margin: 0;
+  font-family: var(--font-instrument), system-ui, sans-serif;
+  line-height: 1.5;
+  --font-sans: var(--font-instrument), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --font-serif: var(--font-dm-serif), Georgia, serif;
+}
+
+html[data-mock-theme="light"] body.app-arxiv {
+  background: #b8b4ac;
+  color: var(--color-text-primary);
+}
+
+html[data-mock-theme="dark"] body.app-arxiv {
+  background: #0f0e0c;
+  color: var(--color-text-primary);
+}
+
+body.app-arxiv a {
+  color: var(--color-accent, #2b4fa8);
+}
+
+.arxiv-mock.arxiv-app-shell {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+  border-bottom: 0.5px solid var(--color-border, #d4d0c8);
+  min-height: 100vh;
+  max-height: none;
+}
+
+.arxiv-mock.arxiv-app-shell .mock-stage {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Project workspace: header row above 3-col grid */
+.app-proj-hdr {
+  padding: 12px 18px;
+  border-bottom: 0.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  background: var(--color-background-primary);
+}
+
+.app-proj-title {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 15px;
+  color: var(--color-text-primary);
+}
+
+.app-proj-meta {
+  font-size: 10px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.app-hdr-acts {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.app-btn {
+  padding: 5px 11px;
+  border-radius: 4px;
+  border: 0.5px solid var(--color-border);
+  background: transparent;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.app-btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.app-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.arxiv-app-shell .mock-sdot.fail {
+  background: #991a1a;
+}
+
+a.mock-proj-row,
+a.mock-new-dash {
+  text-decoration: none;
+  color: inherit;
+}

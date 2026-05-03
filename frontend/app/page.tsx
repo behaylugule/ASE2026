@@ -1,21 +1,27 @@
 import Link from "next/link";
+import { ArxivTopBar } from "@/components/ArxivTopBar";
 
 export default function Home() {
   return (
-    <main style={{ padding: "2rem", maxWidth: 560, margin: "0 auto" }}>
-      <h1>Academic Research Assistant</h1>
-      <p className="muted">Sign in to manage projects, upload PDFs or Word files, and chat with citations.</p>
-      <div className="row" style={{ marginTop: "1.5rem" }}>
-        <Link className="btn" href="/login">
-          Log in
-        </Link>
-        <Link className="btn secondary" href="/register">
-          Register
-        </Link>
-        <Link className="btn secondary" href="/projects">
-          Projects
-        </Link>
+    <div className="arxiv-mock arxiv-app-shell">
+      <ArxivTopBar logoHref="/" userInitials="·" />
+
+      <div className="mock-dash-main" style={{ flex: 1 }}>
+        <div className="mock-glyph">∂</div>
+        <h1 className="mock-dash-title">Academic Research Assistant</h1>
+        <p className="mock-dash-sub">Sign in to manage projects, upload PDFs or Word files, and chat with citations backed by pgvector retrieval.</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", marginTop: 8 }}>
+          <Link href="/login" className="mock-primary-btn" style={{ width: "auto", marginTop: 0, textDecoration: "none", display: "inline-block", textAlign: "center" }}>
+            Log in
+          </Link>
+          <Link href="/register" className="mock-btn-ghost" style={{ textDecoration: "none", display: "inline-block", textAlign: "center" }}>
+            Register
+          </Link>
+          <Link href="/projects" className="mock-btn-ghost" style={{ textDecoration: "none", display: "inline-block", textAlign: "center" }}>
+            Projects
+          </Link>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
