@@ -14,7 +14,7 @@
   - [x] Increased `Document.file` max length (avoids `SuspiciousFileOperation`)
   - [x] Fixed tokenizer selection for chunking (`encoding_name="cl100k_base"`)
 
-### Remaining / Optional improvements
+### Remaining 
 - [ ] LangGraph RAG pipeline: load memory → embed query → project-scoped retrieval → re-rank → multi-doc aggregation → generate → citations → save memory
 - [ ] Chat API + history (`/api/projects/{id}/chat/*`)
 - [ ] Implement best UI
